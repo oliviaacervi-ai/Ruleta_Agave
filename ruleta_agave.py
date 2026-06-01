@@ -71,11 +71,20 @@ def dibujar_ruleta(rotacion=0):
 with container.container():
     st.plotly_chart(dibujar_ruleta(), use_container_width=True, key="ruleta_ini")
 
-if st.button("¡GIRAR RULETA!"):
+# --- BOTÓN CENTRADO ---
+# Creamos 3 columnas, el botón irá en la del medio
+col1, col2, col3 = st.columns([1, 2, 1])
+
+with col2:
+    girar = st.button("¡GIRAR RULETA!")
+
+if girar:
     for i in range(20):
         with container.container():
             st.plotly_chart(dibujar_ruleta(i * 30), use_container_width=True, key=f"giro_{i}")
         time.sleep(0.05)
+    
+    # ... resto de tu lógica de resultado ...
     
     resultado = random.choice([p.strip() for p in premios_display])
     container.empty()
