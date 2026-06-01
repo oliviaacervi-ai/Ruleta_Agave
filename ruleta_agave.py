@@ -6,14 +6,14 @@ import pandas as pd
 import datetime
 import os
 
+# Configuración inicial
 st.set_page_config(page_title="Ruleta Agave", layout="centered")
 
-# --- DISEÑO CSS ---
+# Estilos CSS para el diseño terracota y animaciones
 st.markdown("""
     <style>
     .stApp { background-color: #C06C4C !important; }
     h1 { color: white !important; text-align: center; font-weight: bold; }
-    .input-box { background-color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
     .premio-final { 
         background-color: #2D55A6; color: white; padding: 40px; 
         border-radius: 20px; text-align: center; font-size: 30px; margin-top: 20px;
@@ -26,24 +26,34 @@ st.markdown("""
 
 st.markdown("<h1>🎡 RULETA AGAVE</h1>", unsafe_allow_html=True)
 
-# --- LÓGICA DE DATOS ---
+# Lógica de datos (Registro)
 ARCHIVO_DATOS = "datos_clientes.csv"
 if not os.path.exists(ARCHIVO_DATOS):
-    pd.DataFrame(columns=["email", "fecha"]).to_csv(ARCHIVO_DATOS, index=False)
+    pd.DataFrame(columns=["email", "fecha_hora", "premio"]).to_csv(ARCHIVO_DATOS, index=False)
 
-# --- CAPTURA DE EMAIL ---
+def guardar_giro(email, premio):
+    fecha_hora = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    fecha_solo = str(datetime.date.today())
+    nuevo_registro = pd.DataFrame({"email": [email], "fecha_hora": [fecha_hora], "premio": [premio]})
+    df = pd.read_csv(ARCHIVO_DATOS)
+    df = pd.concat([df, nuevo_registro], ignore_index=True)
+    df.to_csv(ARCHIVO_DATOS, index=False)
+
+# Captura de Email
 email = st.text_input("ESCRIBE TU EMAIL PARA JUGAR:")
 if not email:
     st.stop() 
 
-# --- VALIDACIÓN DIARIA ---
+# Validación diaria
 df = pd.read_csv(ARCHIVO_DATOS)
 hoy = str(datetime.date.today())
-if not df[(df["email"] == email) & (df["fecha"] == hoy)].empty:
-    st.error("⚠️ Ya participaste hoy. ¡Te esperamos mañana!")
-    st.stop()
+if not df[df["email"] == email].empty:
+    registros_hoy = df[(df["email"] == email) & (df["fecha_hora"].str.contains(hoy))]
+    if not registros_hoy.empty:
+        st.error("⚠️ Ya participaste hoy. ¡Te esperamos mañana!")
+        st.stop()
 
-# --- RULETA ---
+# Ruleta
 premios_display = ["Taco Dulce", "Margarita Frozen", "Pinta de Cerveza", "No estas de suerte", 
                    "10% de Descuento", "Taco Dulce ", "La proxima sera", "¡Margarita Frozen! "]
 container = st.empty()
@@ -69,11 +79,7 @@ if st.button("¡GIRAR RULETA!"):
     
     resultado = random.choice([p.strip() for p in premios_display])
     container.empty()
-    
-    # Guardar dato
-    nuevo_registro = pd.DataFrame({"email": [email], "fecha": [hoy]})
-    df = pd.concat([pd.read_csv(ARCHIVO_DATOS), nuevo_registro], ignore_index=True)
-    df.to_csv(ARCHIVO_DATOS, index=False)
+    guardar_giro(email, resultado)
     
     if resultado in ["No estas de suerte", "La proxima sera"]:
         st.markdown(f"<div class='premio-final perdedor'>✨ ¡Casi sale! ✨<br>{resultado.upper()}<br><br><span style='font-size: 18px;'>¡No te desanimes, la próxima será tuya!</span></div>", unsafe_allow_html=True)
