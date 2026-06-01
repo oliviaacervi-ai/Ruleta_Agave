@@ -85,4 +85,4 @@ if st.button("¡GIRAR RULETA!"):
         st.markdown(f"<div class='premio-final perdedor'>✨ ¡Casi sale! ✨<br>{resultado.upper()}<br><br><span style='font-size: 18px;'>¡No te desanimes, la próxima será tuya!</span></div>", unsafe_allow_html=True)
     else:
         st.balloons()
-        st.markdown(f"<div class='premio-final'>🎉 ¡FELICIDADES! 🎉<br>Ganaste: {resultado.upper()}<br><br><span style='font-size: 18px;'>Muestra esta pantalla al camarero.</span></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='premio-final'>🎉 ¡FELICIDADES! 🎉<br>Ganaste: {resultado.upper()}<br><br><span style='font-size: 18px;'>Muestra esta pantalla al camarero, para disfrutar del beneficio!.</span></div>", unsafe_allow_html=True)
